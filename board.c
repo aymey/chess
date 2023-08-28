@@ -6,7 +6,6 @@
 
 #include "board.h"
 
-#define BOARD_AMOUNT 8
 #define BOARD_OFFSET 10
 #define CONTROL_WIDTH 256
 
@@ -26,6 +25,11 @@ Piece piece = {
     .Pawn   = 6
 };
 
+Vector2 translate(Vector2 pos) {
+    float grid_x = pos.x;
+    printf("\nx: %f\ny: %f\n", pos.x, pos.y);
+}
+
 void draw_board(int width, int height, int board[64]) {
     /* board display */
     int length = fmin(width - CONTROL_WIDTH, height) / BOARD_AMOUNT;
@@ -35,7 +39,7 @@ void draw_board(int width, int height, int board[64]) {
         }
     }
 
-    /* draw FEN */
+    /* draw from internal */
     Texture2D tile_piece = LoadTexture("./pieces/dk.png");
     for(int i = 0; i < BOARD_AMOUNT*BOARD_AMOUNT; i++) {
         switch(board[i]) {
@@ -79,8 +83,8 @@ void draw_board(int width, int height, int board[64]) {
             default:
                 continue;
         }
-        Vector2 test = {(i % 8)*length, (i/8)*length};
-        DrawTextureEx(tile_piece, test, 0, length/(64.0*8*2), RAYWHITE);
+        Vector2 pos = {(i % BOARD_AMOUNT)*length, (i/BOARD_AMOUNT)*length};
+        DrawTextureEx(tile_piece, pos, 0, length/(64.0*8*2), RAYWHITE);
     }
 }
 
@@ -95,7 +99,7 @@ void parse_FEN(char *FEN, int *board) {
     for(int i = 0; i < strlen(FEN); i++) {
         switch(FEN[i]) {
             case '/':
-                tile -= (tile % 8) - 1;
+                tile -= (tile % BOARD_AMOUNT);
                 break;
             case '0':
             case '1':
@@ -145,7 +149,7 @@ void parse_FEN(char *FEN, int *board) {
                 board[tile++] = piece.Black | piece.Pawn;
                 break;
             case ' ':
-                goto exitt; //temporary
+                goto exitt; // TODO: implement
             default:
                 break;
         }

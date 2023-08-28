@@ -1,6 +1,8 @@
 #ifndef __BOARD_H_
 #define __BOARD_H_
 
+#define BOARD_AMOUNT 8
+
 /* 5 bit id*/
 typedef struct {
     /* two left (colour) bits */
@@ -17,6 +19,12 @@ typedef struct {
     const int Pawn;
 } Piece;
 
+typedef struct {
+    int board[64];
+    int Turn;
+} Board;
+
+Vector2 translate(Vector2 pos);
 void draw_board(int width, int height, int board[64]);
 void parse_FEN(char *string, int *board);
 
