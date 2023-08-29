@@ -83,7 +83,9 @@ void draw_board(int width, int height, int board[64]) {
             default:
                 continue;
         }
-        Vector2 pos = {(i % BOARD_AMOUNT)*length, (i/BOARD_AMOUNT)*length};
+        int file_pos = (i % BOARD_AMOUNT) * length;
+        int rank_pos = (i / BOARD_AMOUNT) * length;
+        Vector2 pos = {file_pos, rank_pos};
         DrawTextureEx(tile_piece, pos, 0, length/(64.0*8*2), RAYWHITE);
     }
 }
@@ -158,4 +160,10 @@ void parse_FEN(char *FEN, int *board) {
 
 
     printf("read FEN\n");
+
+    for(int i = 0; i < (64); i++) {
+        printf("%d, ", board[i]);
+    }
+    printf("\n");
+
 }

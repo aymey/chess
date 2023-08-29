@@ -1,6 +1,8 @@
 #ifndef __BOARD_H_
 #define __BOARD_H_
 
+#include <raylib.h>
+
 #define BOARD_AMOUNT 8
 
 /* 5 bit id*/
@@ -20,8 +22,8 @@ typedef struct {
 } Piece;
 
 typedef struct {
-    int board[64];
-    int Turn;
+    int board[BOARD_AMOUNT*BOARD_AMOUNT];
+    bool Turn;  // white: true (2), black: false (1)
 } Board;
 
 Vector2 translate(Vector2 pos);
