@@ -28,6 +28,6 @@ typedef struct {
 
 Vector2 translate(Vector2 pos);
 void draw_board(int width, int height, int board[64]);
-void parse_FEN(char *string, int *board);
+void parse_FEN(char *string, Board *board);
 
 #endif // __BOARD_H_

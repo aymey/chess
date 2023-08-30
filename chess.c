@@ -9,10 +9,10 @@ const Color BACKGROUND  = {031, 031, 031, 255};
 int main(void) {
     SetConfigFlags(FLAG_WINDOW_RESIZABLE);
     InitWindow(0, 0, "chess");
-    SetTargetFPS(1);
+    SetTargetFPS(3);
 
     /* setup */
-    Board board = { .Turn = true };
+    Board board;
     const int (*edge_data)[8] = precompute_data();
     Array moves;
     init_Array(&moves, 128);
@@ -24,13 +24,16 @@ int main(void) {
     while (!WindowShouldClose()) {
         screen_width = GetScreenWidth();
         screen_height = GetScreenHeight();
+        legal_moves(board, moves, edge_data);
+        make_move(&board.board, moves, 0);
+        board.Turn = !board.Turn;
         BeginDrawing();
-            legal_moves(board, moves, edge_data);
             ClearBackground(BACKGROUND);
             draw_board(screen_width, screen_height, board.board);
         EndDrawing();
     }
 
     CloseWindow();
+    free_Array(&moves);
     return 0;
 }

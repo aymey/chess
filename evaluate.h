@@ -30,6 +30,7 @@ void free_Array(Array *array);
 
 
 int (*precompute_data())[8]; // this cannot be best practice???? idk how else to do it
+void make_move(int *board, Array moves, int index);
 void legal_moves(Board board, Array moves, const int edge_data[64][8]);
 
 #endif // __EVALUATE_H_

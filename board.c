@@ -90,15 +90,16 @@ void draw_board(int width, int height, int board[64]) {
     }
 }
 
-void parse_FEN(char *FEN, int *board) {
+void parse_FEN(char *FEN, Board *board) {
     printf("reading FEN: \"%s\"\n", FEN);
 
     // clear board
     for(int i = 0; i < BOARD_AMOUNT*BOARD_AMOUNT; i++)
-        board[i] = piece.None;
-
+        board->board[i] = piece.None;
     int tile = 0;
+    bool setup = true;
     for(int i = 0; i < strlen(FEN); i++) {
+        if(setup)
         switch(FEN[i]) {
             case '/':
                 tile -= (tile % BOARD_AMOUNT);
@@ -115,55 +116,62 @@ void parse_FEN(char *FEN, int *board) {
                 tile += FEN[i] - 48; // convert FEN number to dec, ascii sequential order from 48
                 break;
             case 'K':
-                board[tile++] = piece.White | piece.King;
+                board->board[tile++] = piece.White | piece.King;
                 break;
             case 'k':
-                board[tile++] = piece.Black | piece.King;
+                board->board[tile++] = piece.Black | piece.King;
                 break;
             case 'Q':
-                board[tile++] = piece.White | piece.Queen;
+                board->board[tile++] = piece.White | piece.Queen;
                 break;
             case 'q':
-                board[tile++] = piece.Black | piece.Queen;
+                board->board[tile++] = piece.Black | piece.Queen;
                 break;
             case 'R':
-                board[tile++] = piece.White | piece.Rook;
+                board->board[tile++] = piece.White | piece.Rook;
                 break;
             case 'r':
-                board[tile++] = piece.Black | piece.Rook;
+                board->board[tile++] = piece.Black | piece.Rook;
                 break;
             case 'B':
-                board[tile++] = piece.White | piece.Bishop;
+                board->board[tile++] = piece.White | piece.Bishop;
                 break;
             case 'b':
-                board[tile++] = piece.Black | piece.Bishop;
+                board->board[tile++] = piece.Black | piece.Bishop;
                 break;
             case 'N':
-                board[tile++] = piece.White | piece.Knight;
+                board->board[tile++] = piece.White | piece.Knight;
                 break;
             case 'n':
-                board[tile++] = piece.Black | piece.Knight;
+                board->board[tile++] = piece.Black | piece.Knight;
                 break;
             case 'P':
-                board[tile++] = piece.White | piece.Pawn;
+                board->board[tile++] = piece.White | piece.Pawn;
                 break;
             case 'p':
-                board[tile++] = piece.Black | piece.Pawn;
+                board->board[tile++] = piece.Black | piece.Pawn;
                 break;
             case ' ':
-                goto exitt; // TODO: implement
+                setup = false;
+            default:
+                break;
+        }
+        if(!setup)
+        switch(FEN[i]) {
+            case 'w':
+                board->Turn = true;
+                break;
+            case 'b':
+                board->Turn = false;
+                break;
             default:
                 break;
         }
     }
-    exitt: // temporary
-
-
     printf("read FEN\n");
 
-    for(int i = 0; i < (64); i++) {
-        printf("%d, ", board[i]);
-    }
+    for(int i = 0; i < (64); i++)
+        printf("%d, ", board->board[i]);
     printf("\n");
 
 }
