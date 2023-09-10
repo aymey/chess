@@ -104,16 +104,27 @@ bool is_sliding_piece(int piece) {
 }
 
 bool is_pawn_piece(int piece) {
-    bool non_sliding = false;
-    const int PAWN = 6;
+    bool pawn = false;
     switch(piece) {
-        case 6:
-            non_sliding = true;
+        case 6: // piece_id.Pawn
+            pawn = true;
             break;
         default:
             break;
     }
-    return non_sliding;
+    return pawn;
+}
+
+bool is_king_piece(int piece) {
+    bool king = false;
+    switch(piece) {
+        case 1: // piece_id.King
+            king = true;
+            break;
+        default:
+            break;
+    }
+    return king;
 }
 
 void generate_sliding_moves(Board board, Array moves, int pos, int piece, const int edge_data[64][8]) {
@@ -122,7 +133,6 @@ void generate_sliding_moves(Board board, Array moves, int pos, int piece, const 
     enum sliding_pieces {ROOK = 3, BISHOP = 4};
     int dir_offset = piece == BISHOP ? 4 : 0;
     int dir_bound = piece == ROOK ? 4 : 8;
-
 
     for(int direction = dir_offset; direction < dir_bound; direction++) {
         for(int i = 0; i < edge_data[pos][direction]; i++) {
@@ -156,8 +166,22 @@ void generate_pawn_moves(Board board, Array moves, int pos, int piece, const int
         // pawn take rules
         if((direction != 1 && board.board[target] == 0) || (direction == 1 && board.board[target]!= 0))
             continue;
-        // edge case (get it?)
-        if((direction == 0 && edge_data[pos][2]) == 0 || ((direction == 2 && edge_data[pos][3] == 0)))
+
+        Move move = {
+            .start = pos,
+            .end = target
+        };
+        append_Array(&moves, move);
+        printf("possible pawn move for %s: %d To %d\n", board.Turn ? "White" : "Black", move.start, move.end);
+    }
+}
+
+void generate_king_moves(Board board, Array moves, int pos, int piece, const int edge_data[64][8]) {
+    const int DirectionOffsets[8] = {8, -8, 1, -1, 7, -7, 9, -9};
+    for(int direction = 0; direction < 8; direction++) {
+        int target = pos + DirectionOffsets[direction];
+        // block if friendly piece
+        if(board.board[target] >> 3 == board.Turn + 1)
             continue;
 
         Move move = {
@@ -165,7 +189,7 @@ void generate_pawn_moves(Board board, Array moves, int pos, int piece, const int
             .end = target
         };
         append_Array(&moves, move);
-        printf("possible non sliding move for %s: %d To %d\n", board.Turn ? "White" : "Black", move.start, move.end);
+        printf("possible king move for %s: %d To %d\n", board.Turn ? "White" : "Black", move.start, move.end);
     }
 }
 
@@ -175,8 +199,8 @@ void make_move(int *board, Array moves, int index) {
 }
 
 void legal_moves(Board board, Array moves, const int edge_data[64][8]) {
-    clear_Array(&moves);
     for(int i = 0; i < BOARD_AMOUNT*BOARD_AMOUNT; i++) {
+        clear_Array(&moves);
         int piece = board.board[i];
         int piece_type = piece - 8*(board.Turn + 1);
         // dont calculate moves for friendly pieces
@@ -186,5 +210,7 @@ void legal_moves(Board board, Array moves, const int edge_data[64][8]) {
             generate_pawn_moves(board, moves, i, piece, edge_data);
         else if(is_sliding_piece(piece_type))
            generate_sliding_moves(board, moves, i, piece_type, edge_data);
+        else if(is_king_piece(piece_type))
+            generate_king_moves(board, moves, i, piece_type, edge_data);
     }
 }

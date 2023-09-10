@@ -7,10 +7,10 @@
 #include "board.h"
 
 #define BOARD_OFFSET 10
-#define CONTROL_WIDTH 256
 
-const Color LIGHTSQ     = {241, 217, 192, 255};
-const Color DARKSQ      = {169, 122, 101, 255};
+const Color LIGHTSQ = {241, 217, 192, 255};
+const Color DARKSQ  = {169, 122, 101, 255};
+const Color PICK    = {247, 221, 170, 255};
 
 Piece piece = {
     .White  = 16,
@@ -25,9 +25,33 @@ Piece piece = {
     .Pawn   = 6
 };
 
-Vector2 translate(Vector2 pos) {
-    float grid_x = pos.x;
-    printf("\nx: %f\ny: %f\n", pos.x, pos.y);
+Texture2D *textures[32];
+
+void input_handler(int board[64]) {
+    if(!IsMouseButtonPressed(MOUSE_BUTTON_LEFT))
+        return;
+
+    Vector2 pos = GetMousePosition();
+    int tile_width = fmin(GetScreenWidth() - CONTROL_WIDTH, GetScreenHeight()) / BOARD_AMOUNT;
+    int file = pos.x / tile_width;
+    int rank = pos.y / tile_width;
+    if(file > 7 || rank > 7)
+        return;
+    printf("Clicked at %d, %d\n", file, rank);
+
+    static int piece;
+    static int piece_index;
+    int board_index = file+rank*8;
+
+    if(!piece) {
+        piece = board[board_index];
+        piece_index = board_index;
+    }
+    else {
+        board[board_index] = piece;
+        board[piece_index] = 0;
+        piece = 0;
+    }
 }
 
 void draw_board(int width, int height, int board[64]) {
@@ -35,7 +59,8 @@ void draw_board(int width, int height, int board[64]) {
     int length = fmin(width - CONTROL_WIDTH, height) / BOARD_AMOUNT;
     for(int i = 0; i < BOARD_AMOUNT; i++) {
         for(int j = 0; j < BOARD_AMOUNT; j++) {
-            DrawRectangle(length*j, length*i, length, length, ((i+j) % 2) ? DARKSQ : LIGHTSQ);
+            Color tile_colour = ((i+j) % 2) ? DARKSQ : LIGHTSQ;
+            DrawRectangle(length*j, length*i, length, length, tile_colour);
         }
     }
 
@@ -81,12 +106,14 @@ void draw_board(int width, int height, int board[64]) {
                 break;
             case 0: // piece.None
             default:
+                textures[i] = NULL;
                 continue;
         }
         int file_pos = (i % BOARD_AMOUNT) * length;
         int rank_pos = (i / BOARD_AMOUNT) * length;
         Vector2 pos = {file_pos, rank_pos};
         DrawTextureEx(tile_piece, pos, 0, length/(64.0*8*2), RAYWHITE);
+        textures[i] = &tile_piece;
     }
 }
 
@@ -174,4 +201,11 @@ void parse_FEN(char *FEN, Board *board) {
         printf("%d, ", board->board[i]);
     printf("\n");
 
+}
+
+void board_free(void) {
+    for(int i = 0; i < 32; i++) {
+        UnloadTexture(*textures[i]);
+        textures[i] = NULL;
+    }
 }

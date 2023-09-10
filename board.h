@@ -4,6 +4,8 @@
 #include <raylib.h>
 
 #define BOARD_AMOUNT 8
+#define CONTROL_WIDTH 256
+#define PICK_PIECE 128
 
 /* 5 bit id*/
 typedef struct {
@@ -22,12 +24,13 @@ typedef struct {
 } Piece;
 
 typedef struct {
-    int board[BOARD_AMOUNT*BOARD_AMOUNT];
+    unsigned int board[BOARD_AMOUNT*BOARD_AMOUNT];
     bool Turn;  // white: true (2), black: false (1)
 } Board;
 
-Vector2 translate(Vector2 pos);
+void input_handler(int board[64]);
 void draw_board(int width, int height, int board[64]);
 void parse_FEN(char *string, Board *board);
+void board_free(void);
 
 #endif // __BOARD_H_
